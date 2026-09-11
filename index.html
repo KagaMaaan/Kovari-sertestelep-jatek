@@ -319,6 +319,7 @@ p.placeholder{
   const powerToggle = document.querySelector('#power-toggle');
   const tvOnSound = document.querySelector('#tv-on-sound');
   const lobbySound = document.querySelector('#lobby-sound');
+  const tvOnStartOffset = 0.9;
   let lobbyStarted = false;
 
   function startLobbySound() {
@@ -345,15 +346,17 @@ p.placeholder{
   powerToggle.addEventListener('change', () => {
     if (!powerToggle.checked) return;
     powerToggle.disabled = true;
+    tvOnSound.currentTime = tvOnStartOffset;
+    tvOnSound.play().catch(() => {});
 
-    // Let the switch finish, then wait another half-second before powering on.
+    // Let the switch finish before revealing the powered-on screen.
     setTimeout(() => {
       bootOverlay.classList.add('started');
-      tvOnSound.play().catch(() => {});
+      setTimeout(startLobbySound, 100);
     }, 1000);
   });
 
-  // Start the lobby music only after the boot overlay is fully gone.
+  // Keep the animation-end handler as a fallback if the early timer is interrupted.
   bootOverlay.addEventListener('animationend', (event) => {
     if (event.animationName === 'bootCurtain') startLobbySound();
   });
