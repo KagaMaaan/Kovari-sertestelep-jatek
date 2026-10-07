@@ -21,7 +21,10 @@ body{
   margin:0;
   background: radial-gradient(ellipse at center, var(--blood-bright) 0%, var(--blood) 32%, var(--pitch) 100%);
   color:var(--bone);
-  font-family:'Crimson Text', serif;
+  font-family:'Cinzel', 'Crimson Text', serif;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.04em;
   overflow:hidden;
   display:flex;
   align-items:center;
@@ -87,7 +90,9 @@ body::after{
 }
 
 .wrap{
-  position:relative;
+  position:fixed;
+  top:50%;
+  left:50%;
   z-index:2;
   width:min(520px, 100%);
   padding:6vw 2.5vw;
@@ -95,6 +100,7 @@ body::after{
   flex-direction:column;
   align-items:center;
   text-align:center;
+  transform:translate(-50%, -50%);
 }
 
 h1{
@@ -125,18 +131,21 @@ p.tagline{
 /* --- menü gombok --- */
 .menu-list{
   display:flex; flex-direction:column; gap:0.9em; align-items:stretch;
+  width:min(100%, 360px);
   margin:0 0 1.8em 0;
 }
+.about-menu-item{position:relative; width:100%;}
+.about-menu-item > .menu-btn{width:100%;}
 .menu-btn{
-  font-family:'Crimson Text', serif;
-  font-size:1.1em;
-  font-weight:600;
-  letter-spacing:0.5px;
+  font-family:'Cinzel', serif;
+  font-size:1em;
+  font-weight:800;
+  letter-spacing:0.08em;
   color:var(--bone);
   text-decoration:none;
   background:linear-gradient(180deg, rgba(42,10,10,0.9), rgba(10,6,6,0.9));
   border:1px solid var(--blood-bright);
-  padding:0.85em 1.4em;
+  padding:0.9em 1.4em;
   cursor:pointer;
   position:relative;
   opacity:0;
@@ -144,9 +153,10 @@ p.tagline{
   animation: menuFadeIn 0.6s ease forwards;
   transition:background 0.25s ease, box-shadow 0.25s ease, transform 0.15s ease;
 }
-.menu-list .menu-btn:nth-child(1){animation-delay:2.35s;}
-.menu-list .menu-btn:nth-child(2){animation-delay:2.55s;}
-.menu-list .menu-btn:nth-child(3){animation-delay:2.75s;}
+.menu-list .menu-btn:nth-child(1){animation-delay:2.25s;}
+.menu-list .menu-btn:nth-child(2){animation-delay:2.45s;}
+.menu-list .menu-btn:nth-child(3){animation-delay:2.65s;}
+.menu-list .menu-btn:nth-child(4){animation-delay:2.85s;}
 @keyframes menuFadeIn{to{opacity:1; transform:translateY(0);}}
 .menu-btn:hover{
   background:linear-gradient(180deg, rgba(60,14,14,0.95), rgba(14,8,8,0.95));
@@ -158,33 +168,83 @@ p.tagline{
   background:transparent;
   border-color:#3a2f27;
   color:#9a8d7a;
-  font-size:0.95em;
+  font-size:0.88em;
 }
 .menu-btn.ghost:hover{border-color:#6b5d4a; box-shadow:none;}
 .menu-btn.small{
-  font-size:0.85em; padding:0.5em 1em; opacity:1; transform:none; animation:none;
+  font-size:0.78em; padding:0.55em 1em; opacity:1; transform:none; animation:none;
 }
 
-/* --- hangerő csúszka --- */
+/* --- settings + sound controls --- */
+.info-panel{
+  position:absolute;
+  z-index:3;
+  top:50%;
+  left:calc(100% + 18px);
+  width:min(360px, calc(50vw - 220px));
+  max-height:0;
+  margin:0;
+  padding:0 1.2em;
+  border:1px solid #3a2f27;
+  background:rgba(7,5,4,0.75);
+  color:#d5cab4;
+  text-align:left;
+  opacity:0;
+  overflow:hidden;
+  visibility:hidden;
+  pointer-events:none;
+  transform:translate(-8px, -50%);
+  transition:opacity 0.3s ease, max-height 0.4s ease, padding 0.4s ease, transform 0.3s ease, visibility 0s linear 0.4s;
+}
+.info-panel::before,
+.info-panel::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:0;
+  height:0;
+  border-top:9px solid transparent;
+  border-bottom:9px solid transparent;
+  opacity:0;
+}
+.info-panel::before{
+  left:-10px;
+  border-right:10px solid #3a2f27;
+}
+.info-panel::after{
+  left:-8px;
+  border-right:9px solid rgba(7,5,4,0.75);
+}
+.info-panel.open{
+  max-height:500px;
+  padding:1em 1.2em;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  transform:translate(0, -50%);
+  transition:opacity 0.3s ease, max-height 0.4s ease, padding 0.4s ease, transform 0.3s ease, visibility 0s;
+}
+.info-panel.open::before,
+.info-panel.open::after{opacity:1;}
+
 .volume-row{
-  display:flex; align-items:center; justify-content:center; gap:0.7em;
-  font-size:0.85em; color:#9a8d7a; letter-spacing:0.5px;
+  display:flex; align-items:center; justify-content:space-between; gap:0.8em;
+  font-size:0.72em; color:#c4b9a7; letter-spacing:0.08em;
+  font-weight:700;
   opacity:0; animation: menuFadeIn 0.6s ease forwards; animation-delay:2.95s;
 }
+.volume-row label{flex:1;}
 .volume-row input[type="range"]{
-  width:120px; accent-color: var(--blood-bright);
+  width:150px; accent-color: var(--blood-bright);
 }
 
-/* --- "mielőtt belépnél" panel --- */
-.about-panel{
-  margin-top:1.6em; padding:1em 1.2em;
-  border:1px solid #3a2f27; background:rgba(7,5,4,0.75);
-  font-size:0.9em; color:#c9beac; text-align:left;
-  opacity:0; max-height:0; overflow:hidden;
-  transition:opacity 0.4s ease, max-height 0.4s ease, padding 0.4s ease, margin 0.4s ease;
+.settings-note,
+.about-panel p{
+  margin:0 0 0.9em 0;
+  color:#d5cab4;
+  font-size:0.72em;
+  line-height:1.7;
 }
-.about-panel.open{opacity:1; max-height:260px; margin-top:1.6em;}
-.about-panel.closed-init{max-height:0; opacity:0; margin-top:0; padding-top:0; padding-bottom:0;}
 
 /* --- old TV power-on sequence --- */
 .tv-boot{
@@ -386,6 +446,33 @@ p.tagline{
   .menu-btn{font-size:1em;}
   h1{letter-spacing:3px;}
 }
+@media (max-width:900px){
+  .info-panel{
+    top:calc(100% + 14px);
+    left:50%;
+    width:min(360px, calc(100vw - 40px));
+    transform:translate(-50%, -8px);
+  }
+  .info-panel.open{transform:translate(-50%, 0);}
+  .info-panel::before,
+  .info-panel::after{
+    top:-10px;
+    left:50%;
+    border:0;
+    border-left:9px solid transparent;
+    border-right:9px solid transparent;
+    border-bottom:10px solid #3a2f27;
+  }
+  .info-panel::after{
+    top:-8px;
+    margin-left:1px;
+    border-left-width:8px;
+    border-right-width:8px;
+    border-bottom-color:rgba(7,5,4,0.75);
+  }
+  .info-panel.open::before,
+  .info-panel.open::after{opacity:1;}
+}
 </style>
 </head>
 <body>
@@ -404,23 +491,22 @@ p.tagline{
 
 <div class="wrap">
   <h1>A KŐVÁRI<br>SERTÉSTELEP</h1>
-  <p class="tagline">1987 óta senki sem jött ki élve, hogy elmesélje. Te mersz-e bekopogni?</p>
+  <p class="tagline">1987 óta senki sem jött ki élve, hogy elmesélje.</p>
 
   <nav class="menu-list">
-    <a class="menu-btn" href="sertestelep2.html">Belépek a kapun</a>
-    <button class="menu-btn" id="btn-about" type="button">Mielőtt belépnél</button>
-    <button class="menu-btn ghost" id="btn-exit" type="button">Kilépés</button>
+    <a class="menu-btn" id="btn-enter" href="sertestelep2.html">BELÉPEK A KAPUN</a>
+    <div class="about-menu-item">
+      <button class="menu-btn" id="btn-about" type="button" aria-expanded="false" aria-controls="info-panel">JOBB HA TUDOD</button>
+      <div class="info-panel closed-init" id="info-panel" aria-hidden="true" inert>
+        <div class="volume-row">
+          <label for="vol">HANGERŐ</label>
+          <input type="range" id="vol" min="0" max="100" value="70">
+        </div>
+        <p>INTERAKTÍV HORRORTÖRTÉNET HIRTELEN HANGOKKAL ÉS NYUGTALANÍTÓ TARTALMAKKAL. FIGYELJ A HANGERŐRE, MIELŐTT BELÉPSZ — A TELEP JOBBAN MŰKÖDIK FEJHALLGATÓVAL. A LEGJOBB ÉLMÉNY ÉRDEKÉBEN PC-N MERÉSZKEDJ BE.</p>
+      </div>
+    </div>
+    <button class="menu-btn ghost" id="btn-exit" type="button">KILÉPÉS</button>
   </nav>
-
-  <div class="volume-row">
-    <label for="vol">🔊 Hangerő</label>
-    <input type="range" id="vol" min="0" max="100" value="70">
-  </div>
-
-  <div class="about-panel closed-init" id="about-panel">
-    <p>Interaktív horrortörténet villogó fényekkel, hirtelen hangokkal és nyugtalanító tartalommal. Figyelj a hangerőre, mielőtt belépsz — a telep jobban működik fejhallgatóval.</p>
-    <button class="menu-btn ghost small" id="btn-about-close" type="button">Bezárom</button>
-  </div>
 </div>
 
 <div id="goodbye-screen">
@@ -428,13 +514,53 @@ p.tagline{
 </div>
 
 <script>
+  const STORAGE_KEY = 'sertestelep_state_v1';
+  const defaultState = {
+    settings: {
+      volume: 70
+    },
+    progress: {
+      firstBootComplete: false,
+      stage: 'menu',
+      choices: []
+    }
+  };
+
+  function loadState() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+      return {
+        settings: { ...defaultState.settings, ...(saved.settings || {}) },
+        progress: { ...defaultState.progress, ...(saved.progress || {}) }
+      };
+    } catch (error) {
+      return JSON.parse(JSON.stringify(defaultState));
+    }
+  }
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+  }
+
+  const appState = loadState();
   const bootOverlay = document.querySelector('.tv-boot');
   const powerToggle = document.querySelector('#power-toggle');
   const tvOnSound = document.querySelector('#tv-on-sound');
   const lobbySound = document.querySelector('#lobby-sound');
   const tvOnStartOffset = 0.9;
   let lobbyStarted = false;
-  let targetVolume = 0.7;
+  let targetVolume = (appState.settings.volume || 70) / 100;
+
+  function updateProgress(stage, choice) {
+    if (stage) appState.progress.stage = stage;
+    if (choice !== undefined) {
+      const nextChoices = Array.isArray(appState.progress.choices) ? appState.progress.choices.slice() : [];
+      nextChoices.push(choice);
+      appState.progress.choices = nextChoices;
+    }
+    appState.progress.lastUpdated = Date.now();
+    saveState();
+  }
 
   function startLobbySound() {
     if (lobbyStarted) return;
@@ -457,9 +583,14 @@ p.tagline{
     });
   }
 
-  powerToggle.addEventListener('change', () => {
-    if (!powerToggle.checked) return;
+  function beginPowerSequence() {
+    if (powerToggle.disabled) return;
+    powerToggle.checked = true;
     powerToggle.disabled = true;
+    appState.progress.firstBootComplete = true;
+    appState.settings.volume = Math.round(targetVolume * 100);
+    saveState();
+
     tvOnSound.currentTime = tvOnStartOffset;
     tvOnSound.play().catch(() => {});
 
@@ -467,6 +598,11 @@ p.tagline{
       bootOverlay.classList.add('started');
       setTimeout(startLobbySound, 100);
     }, 1000);
+  }
+
+  powerToggle.addEventListener('change', () => {
+    if (!powerToggle.checked) return;
+    beginPowerSequence();
   });
 
   bootOverlay.addEventListener('animationend', (event) => {
@@ -475,31 +611,42 @@ p.tagline{
 
   /* --- hangerő csúszka --- */
   const volSlider = document.querySelector('#vol');
+  volSlider.value = appState.settings.volume;
+  targetVolume = appState.settings.volume / 100;
   volSlider.addEventListener('input', () => {
     targetVolume = volSlider.value / 100;
+    appState.settings.volume = Number(volSlider.value);
+    saveState();
     if (lobbyStarted) lobbySound.volume = targetVolume;
   });
 
-  /* --- "mielőtt belépnél" panel --- */
+  /* --- info panel --- */
   const aboutBtn = document.querySelector('#btn-about');
-  const aboutPanel = document.querySelector('#about-panel');
-  const aboutCloseBtn = document.querySelector('#btn-about-close');
+  const infoPanel = document.querySelector('#info-panel');
+  function setInfoPanelOpen(isOpen) {
+    infoPanel.classList.toggle('open', isOpen);
+    infoPanel.classList.toggle('closed-init', !isOpen);
+    infoPanel.setAttribute('aria-hidden', String(!isOpen));
+    infoPanel.inert = !isOpen;
+    aboutBtn.setAttribute('aria-expanded', String(isOpen));
+  }
   aboutBtn.addEventListener('click', () => {
-    aboutPanel.classList.remove('closed-init');
-    aboutPanel.classList.add('open');
+    setInfoPanelOpen(aboutBtn.getAttribute('aria-expanded') !== 'true');
   });
-  aboutCloseBtn.addEventListener('click', () => {
-    aboutPanel.classList.remove('open');
+
+  const enterBtn = document.querySelector('#btn-enter');
+  enterBtn.addEventListener('click', () => {
+    updateProgress('story', 'entry');
   });
 
   /* --- kilépés: a tévé "lekapcsol" --- */
   const exitBtn = document.querySelector('#btn-exit');
   const goodbyeScreen = document.querySelector('#goodbye-screen');
   exitBtn.addEventListener('click', () => {
+    updateProgress('stage', 'exit');
     exitBtn.disabled = true;
     bootOverlay.classList.add('shutdown');
 
-    // hangerő lassú elúsztatása lekapcsolás közben
     const fadeStart = performance.now();
     const fadeDuration = 900;
     const startVol = lobbySound.volume;
@@ -516,6 +663,12 @@ p.tagline{
       setTimeout(() => { try{ window.close(); }catch(e){} }, 1200);
     }, 950);
   });
+
+  if (appState.progress.firstBootComplete) {
+    setTimeout(() => {
+      beginPowerSequence();
+    }, 700);
+  }
 </script>
 
 </body>
