@@ -8,6 +8,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
 :root{
+  --zoom-ease: cubic-bezier(0.4,0,0.6,1);
   --blood: #4a0808;
   --blood-bright: #a10f0f;
   --bone: #d8cdb8;
@@ -107,11 +108,16 @@ h1{
   font-family:'Cinzel', serif;
   color:var(--bone);
   text-shadow: 0 0 14px rgba(0,0,0,0.8), 0 0 4px #000;
-  font-size:clamp(1.9rem, 7vw, 3.6rem);
+  /* egy sorban marad: a méret a szélességhez igazodik, így mobilon is elfér */
+  font-size:clamp(1rem, 4.8vw, 3rem);
   line-height:1.15;
   letter-spacing:0.12em;
-  margin:0 0 0.3em 0;
-  width:100%;
+  /* a letter-spacing az utolsó betű után is helyet hagy, ezt egyenlítjük ki a bal oldalon */
+  padding-left:0.12em;
+  margin:0 0 0.4em 0;
+  white-space:nowrap;
+  width:max-content;
+  max-width:96vw;
   animation: flicker 5s infinite;
 }
 @keyframes flicker{
@@ -436,14 +442,14 @@ p.tagline{
 
 /* --- belépés a kapun: "beszippant" a képernyőbe --- */
 .tv-boot.zooming::before{
-  animation: zoomIntoScreen 1s cubic-bezier(0.6,0,0.85,1) forwards !important;
+  animation: zoomIntoScreen 1s var(--zoom-ease) forwards !important;
 }
 /* két külön animáció: a villódzás lépcsős (steps), a kivágás viszont sima,
    és ugyanazzal az ütemezéssel nő ki a képből, mint a keret */
 .tv-boot.zooming::after{
   animation:
     zoomStatic 1s steps(3, end) forwards,
-    zoomClip 1s cubic-bezier(0.6,0,0.85,1) forwards !important;
+    zoomClip 1s var(--zoom-ease) forwards !important;
 }
 @keyframes zoomIntoScreen{
   0%{
@@ -487,11 +493,11 @@ body.zooming .vignette{
   transition:opacity 0.5s ease;
 }
 body.zooming .wrap{
-  animation: wrapZoomIn 1s cubic-bezier(0.6,0,0.85,1) forwards;
+  animation: wrapZoomIn 1s var(--zoom-ease) forwards;
 }
 @keyframes wrapZoomIn{
   0%{transform:translate(-50%,-50%) scale(1); opacity:1; filter:brightness(1);}
-  65%{transform:translate(-50%,-50%) scale(1.55); opacity:0.55; filter:brightness(1.8);}
+  50%{transform:translate(-50%,-50%) scale(1.52); opacity:0.5; filter:brightness(1.7);}
   100%{transform:translate(-50%,-50%) scale(2.3); opacity:0; filter:brightness(2.4);}
 }
 body.zooming .tracking{opacity:0; transition:opacity 0.3s ease;}
@@ -562,7 +568,7 @@ body.zooming .tracking{opacity:0; transition:opacity 0.3s ease;}
 <audio id="lobby-sound" src="audio/lobby.mp3" preload="auto" loop></audio>
 
 <div class="wrap">
-  <h1>A KŐVÁRI<br>SERTÉSTELEP</h1>
+  <h1>A KŐVÁRI SERTÉSTELEP</h1>
   <p class="tagline">1987 óta senki sem jött ki élve, hogy elmesélje.</p>
 
   <nav class="menu-list">
