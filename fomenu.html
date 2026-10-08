@@ -434,12 +434,84 @@ p.tagline{
 }
 #goodbye-screen .small{display:block; font-size:0.75em; margin-top:0.6em; color:#423a30;}
 
+/* --- belépés a kapun: "beszippant" a képernyőbe --- */
+.tv-boot.zooming::before{
+  animation: zoomIntoScreen 1s cubic-bezier(0.6,0,0.85,1) forwards !important;
+}
+/* két külön animáció: a villódzás lépcsős (steps), a kivágás viszont sima,
+   és ugyanazzal az ütemezéssel nő ki a képből, mint a keret */
+.tv-boot.zooming::after{
+  animation:
+    zoomStatic 1s steps(3, end) forwards,
+    zoomClip 1s cubic-bezier(0.6,0,0.85,1) forwards !important;
+}
+@keyframes zoomIntoScreen{
+  0%{
+    width:92vw; height:84vh; border-radius:11% 7% 10% 6% / 9% 6% 8% 5%;
+    box-shadow:
+      0 0 0 100vmax #030303,
+      0 0 22px 8px rgba(0,0,0,0.9),
+      inset 0 0 18px rgba(255,255,255,0.08);
+  }
+  /* a keret körüli puha árnyék és a belső fény gyorsan elenyészik */
+  35%{
+    box-shadow:
+      0 0 0 100vmax #030303,
+      0 0 0 0 rgba(0,0,0,0),
+      inset 0 0 0 rgba(255,255,255,0);
+  }
+  100%{
+    width:160vw; height:160vh; border-radius:0;
+    box-shadow:
+      0 0 0 100vmax #030303,
+      0 0 0 0 rgba(0,0,0,0),
+      inset 0 0 0 rgba(255,255,255,0);
+  }
+}
+@keyframes zoomStatic{
+  0%{opacity:0;}
+  35%,65%{opacity:0.85;}
+  100%{opacity:0;}
+}
+@keyframes zoomClip{
+  0%{clip-path:inset(8vh 4vw round 11% 7% 10% 6% / 9% 6% 8% 5%);}
+  100%{clip-path:inset(-30vh -30vw round 0% 0% 0% 0% / 0% 0% 0% 0%);}
+}
+body.zooming .wrap{
+  pointer-events:none;
+}
+/* a sarkok sötétítése (vignette) is oldódjon fel, ne maradjon "keretszerű" árnyék */
+body.zooming .vignette{
+  pointer-events:none;
+  opacity:0;
+  transition:opacity 0.5s ease;
+}
+body.zooming .wrap{
+  animation: wrapZoomIn 1s cubic-bezier(0.6,0,0.85,1) forwards;
+}
+@keyframes wrapZoomIn{
+  0%{transform:translate(-50%,-50%) scale(1); opacity:1; filter:brightness(1);}
+  65%{transform:translate(-50%,-50%) scale(1.55); opacity:0.55; filter:brightness(1.8);}
+  100%{transform:translate(-50%,-50%) scale(2.3); opacity:0; filter:brightness(2.4);}
+}
+body.zooming .tracking{opacity:0; transition:opacity 0.3s ease;}
+
+#zoom-flash{
+  position:fixed; inset:0; z-index:40;
+  background:radial-gradient(circle, #fff8ec 0%, #ffffff 55%, #ffffff 100%);
+  opacity:0; pointer-events:none;
+  transition:opacity 0.45s ease;
+}
+#zoom-flash.show{opacity:1;}
+
 @media (prefers-reduced-motion: reduce){
   .tv-boot{animation:bootCurtain 0.8s linear forwards; animation-play-state:paused;}
   .tv-boot.started{animation-play-state:running;}
   .tv-boot::before,.tv-boot::after{animation:none; opacity:0;}
   .menu-btn{animation:none; opacity:1; transform:none;}
   .volume-row{animation:none; opacity:1;}
+  .tv-boot.zooming::before,.tv-boot.zooming::after{animation:none !important;}
+  body.zooming .wrap{animation:none; opacity:1;}
 }
 
 @media (max-width:480px){
@@ -512,6 +584,7 @@ p.tagline{
 <div id="goodbye-screen">
   <p>Viszlát.<span class="small">(zárd be a lapot, ha tényleg menni akarsz)</span></p>
 </div>
+<div id="zoom-flash"></div>
 
 <script>
   const STORAGE_KEY = 'sertestelep_state_v1';
@@ -634,9 +707,45 @@ p.tagline{
     setInfoPanelOpen(aboutBtn.getAttribute('aria-expanded') !== 'true');
   });
 
+  /* --- belépés: "beszippant" a tévébe, majd átvált a játék oldalra --- */
   const enterBtn = document.querySelector('#btn-enter');
-  enterBtn.addEventListener('click', () => {
+  const zoomFlash = document.querySelector('#zoom-flash');
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  enterBtn.addEventListener('click', (e) => {
+    // engedjük a natív viselkedést (új fül, stb.), ha módosítóval kattintottak
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button === 1) return;
+    e.preventDefault();
+
+    if (document.body.classList.contains('zooming')) return; // dupla kattintás ellen
     updateProgress('story', 'entry');
+
+    const destination = enterBtn.getAttribute('href');
+
+    if (prefersReducedMotion) {
+      window.location.href = destination;
+      return;
+    }
+
+    document.body.classList.add('zooming');
+    bootOverlay.classList.add('zooming');
+
+    // a lobby-zene is "belehúzódik" a villanásba
+    const fadeStart = performance.now();
+    const fadeDuration = 1000;
+    const startVol = lobbySound.volume;
+    function fadeOut(currentTime){
+      const progress = Math.min((currentTime - fadeStart) / fadeDuration, 1);
+      lobbySound.volume = startVol * (1 - progress);
+      if (progress < 1) requestAnimationFrame(fadeOut);
+    }
+    requestAnimationFrame(fadeOut);
+
+    // fehér villanás a zoom csúcsán, ami végig fedi a képernyőt, mire átlépünk
+    setTimeout(() => { zoomFlash.classList.add('show'); }, 600);
+    setTimeout(() => {
+      window.location.href = destination;
+    }, 1150);
   });
 
   /* --- kilépés: a tévé "lekapcsol" --- */
